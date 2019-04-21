@@ -10,6 +10,8 @@ class CShowimageDlg : public CDialogEx
 // 构造
 public:
 	CRect rect1;
+	CRect m_rect;
+
 	CShowimageDlg(CWnd* pParent = nullptr);	// 标准构造函数
 
 // 对话框数据
@@ -35,6 +37,8 @@ public:
 	afx_msg
 		void OnBnClickedOk();
 	afx_msg void OnBnClickedButton1();
+	void ChangeSize(UINT nID, int x, int y);
 	CString barcode;
 	CString type;
+	afx_msg void OnSize(UINT nType, int cx, int cy);
 };

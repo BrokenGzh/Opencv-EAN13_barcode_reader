@@ -74,6 +74,7 @@ BEGIN_MESSAGE_MAP(CShowimageDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDOK, &CShowimageDlg::OnBnClickedOk)
 	ON_BN_CLICKED(IDC_BUTTON1, &CShowimageDlg::OnBnClickedButton1)
+	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 
@@ -110,6 +111,7 @@ BOOL CShowimageDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+	GetClientRect(&m_rect);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -864,3 +866,43 @@ void CShowimageDlg::OnBnClickedButton1()
 	UpdateData(FALSE);
 	// TODO: 在此添加控件通知处理程序代码
 };
+
+void CShowimageDlg::ChangeSize(UINT nID, int x, int y) //nID为控件ID，x,y分别为对话框的当前长和宽
+{
+
+
+	CWnd *pWnd;
+	pWnd = GetDlgItem(nID);
+	if (pWnd != NULL) //判断是否为空，因为在窗口创建的时候也会调用OnSize函数，但是此时各个控件还没有创建，Pwnd为空
+	{
+
+
+		CRect rec;
+		pWnd->GetWindowRect(&rec); //获取控件变化前的大小
+		ScreenToClient(&rec); //将控件大小装换位在对话框中的区域坐标
+		rec.left = rec.left*x / m_rect.Width(); //按照比例调整空间的新位置
+		rec.top = rec.top*y / m_rect.Height();
+		rec.bottom = rec.bottom*y / m_rect.Height();
+		rec.right = rec.right*x / m_rect.Width();
+		pWnd->MoveWindow(rec); //伸缩控件
+
+
+	}
+};
+void CShowimageDlg::OnSize(UINT nType, int cx, int cy)
+{
+	CDialogEx::OnSize(nType, cx, cy);
+	if (nType != SIZE_MINIMIZED) //判断窗口是不是最小化了，因为窗口最小化之后 ，窗口的长和宽会变成0，当前一次变化的时就会出现除以0的错误操作
+	{
+
+
+		ChangeSize(IDC_STATIC, cx, cy); //对每一个控件依次做调整
+		ChangeSize(IDC_PIC, cx, cy);
+		ChangeSize(IDC_EDIT1, cx, cy);
+		ChangeSize(IDC_EDIT2, cx, cy);
+		ChangeSize(IDCANCEL, cx, cy);
+		ChangeSize(IDC_BUTTON1, cx, cy);
+		ChangeSize(IDOK, cx, cy);
+		GetClientRect(&m_rect); //最后要更新对话框的大小，当做下一次变化的旧坐标
+	}
+}
